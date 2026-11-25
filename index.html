@@ -148,7 +148,7 @@
             min-height: 160px;
         }
 
-        /* Bảng điều khiển - Nút nhấn nhả (chỉ sáng khi đang bấm giữ) */
+        /* Bảng điều khiển - Nút nhấn nhả, đèn sáng theo biến WEB_Q_* từ PLC */
         .ctrl-wrap {
             width: 100%;
             display: flex;
@@ -173,38 +173,38 @@
             cursor: pointer;
             touch-action: none;
             box-shadow: inset 1px 1px 1px #ccc, 1px 1px 2px rgba(0,0,0,0.4);
-            transition: 0.08s;
+            transition: background-color 0.12s, box-shadow 0.12s, transform 0.06s;
+        }
+        .wincc-btn.pressing {
+            transform: translateY(2px);
         }
 
-        #btn_start.pressing {
-            transform: translateY(2px);
+        /* Trạng thái sáng đèn khi nhận bit Q = 1 từ PLC */
+        #btn_start.active {
             background-color: #00c853;
             border-color: #004d20;
             box-shadow: 0 0 14px #00e676, inset 0 0 6px #fff;
         }
-        #btn_stop.pressing {
-            transform: translateY(2px);
+        #btn_stop.active {
             background-color: #d50000;
             border-color: #5c0000;
             box-shadow: 0 0 14px #ff1744, inset 0 0 6px #fff;
         }
-        #btn_auto.pressing {
-            transform: translateY(2px);
+        #btn_auto.active {
             background-color: #0091ea;
             border-color: #003c6c;
             box-shadow: 0 0 14px #40c4ff, inset 0 0 6px #fff;
         }
-        #btn_manual.pressing {
-            transform: translateY(2px);
+        #btn_manual.active {
             background-color: #ff6d00;
             border-color: #6e2f00;
             box-shadow: 0 0 14px #ffab40, inset 0 0 6px #fff;
         }
-        #btn_reset.pressing {
-            transform: translateY(2px);
+        #btn_reset.active {
             background-color: #ffd600;
             color: #000;
-            box-shadow: 0 0 14px #ffd600;
+            border-color: #7f6000;
+            box-shadow: 0 0 14px #ffd600, inset 0 0 6px #fff;
         }
 
         /* Ô nhập I/O Field chuẩn WinCC */
@@ -245,7 +245,7 @@
             margin-left: 4px;
         }
 
-        /* Nút 30Hz, 40Hz, 50Hz (chỉ sáng khi đang bấm giữ) */
+        /* Nút 30Hz, 40Hz, 50Hz */
         .hz-row {
             display: flex;
             gap: 12px;
@@ -450,7 +450,7 @@
 
     <!-- ==================== MIDDLE PANELS ==================== -->
     <div class="mid-row">
-        <!-- 1. BẢNG ĐIỀU KHIỂN (Nhấn gửi mã nút, thả gửi 'Z' -> về 0) -->
+        <!-- 1. BẢNG ĐIỀU KHIỂN (Nhấn gửi mã nút, thả gửi 'Z' -> về 0; Đèn sáng theo biến Q từ PLC) -->
         <div class="panel">
             <div class="panel-header">BẢNG ĐIỀU KHIỂN</div>
             <div class="panel-body">
@@ -695,15 +695,32 @@
     });
 
     // =========================================================================
-    // 4. CẬP NHẬT GIAO DIỆN KHI NHẬN DỮ LIỆU TỪ ESP32 ĐẨY LÊN
+    // 4. CẬP NHẬT GIAO DIỆN KHI NHẬN DỮ LIỆU TỪ PLC -> STM32 -> ESP32 ĐẨY LÊN
     // =========================================================================
     function updateFromPLC(data) {
+        const boolVal  = parseInt(data.bool, 10) || 0;
         const ap_dat   = parseFloat(data.ap_dat) || 0.0;
         const ts_dat   = parseFloat(data.ts_dat) || 0.0;
         const ap_thuc  = parseFloat(data.ap_thuc) || 0.0;
         const ts_thuc  = parseFloat(data.ts_thuc) || 0.0;
         const ap_uoc   = parseFloat(data.ap_uoc) || 0.0;
         const sai_so   = parseFloat(data.sai) || 0.0;
+
+        // Giải mã các bit trạng thái Q từ PLC (Holding_Registers[0]) gửi đi:
+        // Bit 8 (%X8): WEB_Q_START | Bit 9 (%X9): WEB_Q_STOP
+        // Bit 10 (%X10): WEB_Q_AUTO | Bit 11 (%X11): WEB_Q_MANUAL
+        // Bit 12 (%X12) hoặc Bit 4 (%X4): WEB_Q_RESET / WEB_I_RESET
+        const qStart  = ((boolVal >> 8)  & 1) === 1;
+        const qStop   = ((boolVal >> 9)  & 1) === 1;
+        const qAuto   = ((boolVal >> 10) & 1) === 1;
+        const qManual = ((boolVal >> 11) & 1) === 1;
+        const qReset  = (((boolVal >> 12) & 1) === 1) || (((boolVal >> 4) & 1) === 1);
+
+        document.getElementById("btn_start").classList.toggle("active", qStart);
+        document.getElementById("btn_stop").classList.toggle("active", qStop);
+        document.getElementById("btn_auto").classList.toggle("active", qAuto);
+        document.getElementById("btn_manual").classList.toggle("active", qManual);
+        document.getElementById("btn_reset").classList.toggle("active", qReset);
 
         // Cập nhật ô nhập (không ghi đè khi người dùng đang gõ)
         const inAp = document.getElementById("input_ap_dat");
@@ -764,15 +781,27 @@
 
     client.onMessageArrived = function(message) {
         const topic = message.destinationName;
-        const payload = message.payloadString;
-        if (topic === "congphong/plc/sensor") {
+        const payload = message.payloadString.trim();
+
+        if (topic === "congphong/plc/led") return;
+
+        if (topic === "congphong/plc/signal") {
+            document.getElementById("sim_csq").innerText = "4G: " + payload + "/31";
+            return;
+        }
+
+        if (topic === "congphong/plc/sim_status") {
+            console.log("[4G SIM]", payload);
+            return;
+        }
+
+        // Bắt tự động mọi gói JSON từ ESP32 đẩy lên nhánh congphong/plc/#
+        if (payload.startsWith("{")) {
             try {
                 updateFromPLC(JSON.parse(payload));
             } catch (e) {
-                console.warn("Dữ liệu chưa đúng chuẩn JSON:", payload);
+                console.warn("Dữ liệu chưa đúng chuẩn JSON:", topic, payload);
             }
-        } else if (topic === "congphong/plc/signal") {
-            document.getElementById("sim_csq").innerText = "4G: " + payload + "/31";
         }
     };
 
@@ -789,9 +818,7 @@
             onSuccess: function() {
                 st.innerText = "✅ Đã kết nối MQTT";
                 st.style.color = "#2ecc71";
-                client.subscribe("congphong/plc/sensor");
-                client.subscribe("congphong/plc/signal");
-                client.subscribe("congphong/plc/sim_status");
+                client.subscribe("congphong/plc/#");
             },
             onFailure: function(err) {
                 st.innerText = "❌ Lỗi Broker (thử lại...)";
@@ -816,7 +843,7 @@
     }
 
     // =========================================================================
-    // 6. XỬ LÝ 8 NÚT NHẤN NHẢ: NHẤN -> SÁNG & GỬI MÃ | THẢ -> TẮT & GỬI 'Z' (VỀ 0)
+    // 6. XỬ LÝ NÚT NHẤN NHẢ: NHẤN -> GỬI MÃ | THẢ -> GỬI 'Z' (VỀ 0)
     // =========================================================================
     let activeButtonEl = null;
 
