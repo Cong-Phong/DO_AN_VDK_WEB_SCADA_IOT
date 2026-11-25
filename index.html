@@ -13,6 +13,7 @@
             padding: 6px;
             color: #000;
             user-select: none;
+            -webkit-user-select: none;
         }
         .scada-wrapper {
             max-width: 1420px;
@@ -59,7 +60,7 @@
         }
         .ute-text-1 { color: #1f4e8c; font-size: 12px; font-weight: bold; }
         .ute-text-2 { color: #163a70; font-size: 12.5px; font-weight: 700; margin: 2px 0; }
-        .ute-text-3 { color: #e67e22; font-size: 10px; font-weight: bold; font-style: italic; }
+        .ute-text-3 { color: #e67e22; font-size: 9px; font-weight: bold; font-style: italic; }
 
         .fee-text-1 { color: #0e6251; font-size: 9.5px; font-weight: bold; letter-spacing: 0.4px; }
         .fee-text-2 {
@@ -85,7 +86,7 @@
             color: #e60000;
             font-size: 45px;
             font-weight: bold;
-            margin-bottom: 18px;
+            margin-bottom: 12px;
             letter-spacing: 0.5px;
         }
         .title-col h2 {
@@ -147,7 +148,7 @@
             min-height: 160px;
         }
 
-        /* Bảng điều khiển - Nút nhấn */
+        /* Bảng điều khiển - Nút nhấn (chỉ sáng khi đang bấm giữ) */
         .ctrl-wrap {
             width: 100%;
             display: flex;
@@ -170,36 +171,41 @@
             width: 104px;
             height: 46px;
             cursor: pointer;
+            touch-action: none;
             box-shadow: inset 1px 1px 1px #ccc, 1px 1px 2px rgba(0,0,0,0.4);
-            transition: 0.12s;
+            transition: 0.08s;
         }
-        .wincc-btn:active { transform: translateY(2px); }
 
-        /* Hiệu ứng sáng đèn nút nhấn khi WEB_Q = 1 */
-        .wincc-btn.q-start-on {
-            background-color: #00c853 !important;
-            border-color: #004d20 !important;
-            box-shadow: 0 0 14px #00e676, inset 0 0 6px #fff !important;
+        /* Trạng thái sáng khi đang nhấn giữ từng nút */
+        #btn_start.pressing {
+            transform: translateY(2px);
+            background-color: #00c853;
+            border-color: #004d20;
+            box-shadow: 0 0 14px #00e676, inset 0 0 6px #fff;
         }
-        .wincc-btn.q-stop-on {
-            background-color: #d50000 !important;
-            border-color: #5c0000 !important;
-            box-shadow: 0 0 14px #ff1744, inset 0 0 6px #fff !important;
+        #btn_stop.pressing {
+            transform: translateY(2px);
+            background-color: #d50000;
+            border-color: #5c0000;
+            box-shadow: 0 0 14px #ff1744, inset 0 0 6px #fff;
         }
-        .wincc-btn.q-auto-on {
-            background-color: #0091ea !important;
-            border-color: #003c6c !important;
-            box-shadow: 0 0 14px #40c4ff, inset 0 0 6px #fff !important;
+        #btn_auto.pressing {
+            transform: translateY(2px);
+            background-color: #0091ea;
+            border-color: #003c6c;
+            box-shadow: 0 0 14px #40c4ff, inset 0 0 6px #fff;
         }
-        .wincc-btn.q-manual-on {
-            background-color: #ff6d00 !important;
-            border-color: #6e2f00 !important;
-            box-shadow: 0 0 14px #ffab40, inset 0 0 6px #fff !important;
+        #btn_manual.pressing {
+            transform: translateY(2px);
+            background-color: #ff6d00;
+            border-color: #6e2f00;
+            box-shadow: 0 0 14px #ffab40, inset 0 0 6px #fff;
         }
-        .wincc-btn.i-reset-on {
-            background-color: #ffd600 !important;
-            color: #000 !important;
-            box-shadow: 0 0 14px #ffd600 !important;
+        #btn_reset.pressing {
+            transform: translateY(2px);
+            background-color: #ffd600;
+            color: #000;
+            box-shadow: 0 0 14px #ffd600;
         }
 
         /* Ô nhập I/O Field chuẩn WinCC */
@@ -240,7 +246,7 @@
             margin-left: 4px;
         }
 
-        /* Nút 30Hz, 40Hz, 50Hz */
+        /* Nút 30Hz, 40Hz, 50Hz (chỉ sáng khi đang bấm giữ) */
         .hz-row {
             display: flex;
             gap: 12px;
@@ -256,14 +262,16 @@
             width: 96px;
             height: 36px;
             cursor: pointer;
+            touch-action: none;
             box-shadow: inset 1px 1px 1px #66bb8e;
+            transition: 0.08s;
         }
-        .hz-btn:active { transform: translateY(2px); }
-        .hz-btn.hz-on {
-            background-color: #00e676 !important;
-            color: #000 !important;
-            border-color: #006028 !important;
-            box-shadow: 0 0 12px #00e676 !important;
+        .hz-btn.pressing {
+            transform: translateY(2px);
+            background-color: #00e676;
+            color: #000;
+            border-color: #006028;
+            box-shadow: 0 0 12px #00e676;
         }
 
         /* Đồng hồ Gauge */
@@ -383,7 +391,6 @@
             line-height: 1;
             white-space: nowrap;
         }
-        /* Bên trái: Tần số thực biến tần (đè khít ô 00Hz) */
         .overlay-hz {
             left: 4.1%;
             top: 40.0%;
@@ -391,7 +398,6 @@
             height: 6.0%;
             font-size: clamp(10px, 1.05vw, 15px);
         }
-        /* Bên phải: Áp suất thực tế (đè khít ô 0.00 Bar) */
         .overlay-bar {
             left: 77.2%;
             top: 35.4%;
@@ -445,19 +451,19 @@
 
     <!-- ==================== MIDDLE PANELS ==================== -->
     <div class="mid-row">
-        <!-- 1. BẢNG ĐIỀU KHIỂN -->
+        <!-- 1. BẢNG ĐIỀU KHIỂN (Nhấn gửi mã nút, thả gửi 'Z' -> về 0) -->
         <div class="panel">
             <div class="panel-header">BẢNG ĐIỀU KHIỂN</div>
             <div class="panel-body">
                 <div class="ctrl-wrap">
                     <div class="ctrl-row">
-                        <button id="btn_start" class="wincc-btn" onclick="sendButtonCmd('1')">START</button>
-                        <button id="btn_stop" class="wincc-btn" onclick="sendButtonCmd('0')">STOP</button>
+                        <button id="btn_start" class="wincc-btn" oncontextmenu="return false;" onpointerdown="pressBtn(this, '1')">START</button>
+                        <button id="btn_stop" class="wincc-btn" oncontextmenu="return false;" onpointerdown="pressBtn(this, '0')">STOP</button>
                     </div>
                     <div class="ctrl-row">
-                        <button id="btn_auto" class="wincc-btn" onclick="sendButtonCmd('A')">AUTO</button>
-                        <button id="btn_manual" class="wincc-btn" onclick="sendButtonCmd('M')">MANUAL</button>
-                        <button id="btn_reset" class="wincc-btn" onclick="sendButtonCmd('R')">RESET</button>
+                        <button id="btn_auto" class="wincc-btn" oncontextmenu="return false;" onpointerdown="pressBtn(this, 'A')">AUTO</button>
+                        <button id="btn_manual" class="wincc-btn" oncontextmenu="return false;" onpointerdown="pressBtn(this, 'M')">MANUAL</button>
+                        <button id="btn_reset" class="wincc-btn" oncontextmenu="return false;" onpointerdown="pressBtn(this, 'R')">RESET</button>
                     </div>
                 </div>
             </div>
@@ -495,9 +501,9 @@
                         </div>
                     </div>
                     <div class="hz-row">
-                        <button id="btn_hz_30" class="hz-btn" onclick="setQuickFreq('3', 30)">30 Hz</button>
-                        <button id="btn_hz_40" class="hz-btn" onclick="setQuickFreq('4', 40)">40 Hz</button>
-                        <button id="btn_hz_50" class="hz-btn" onclick="setQuickFreq('5', 50)">50 Hz</button>
+                        <button id="btn_hz_30" class="hz-btn" oncontextmenu="return false;" onpointerdown="pressBtn(this, '3', 30)">30 Hz</button>
+                        <button id="btn_hz_40" class="hz-btn" oncontextmenu="return false;" onpointerdown="pressBtn(this, '4', 40)">40 Hz</button>
+                        <button id="btn_hz_50" class="hz-btn" oncontextmenu="return false;" onpointerdown="pressBtn(this, '5', 50)">50 Hz</button>
                     </div>
                 </div>
                 <div class="gauge-holder" id="gauge_ts_dat"></div>
@@ -547,19 +553,14 @@
         <!-- MÔ PHỎNG HỆ THỐNG TRẠM BƠM (ẢNH 3D) -->
         <div class="mimic-panel">
             <div class="mimic-img-wrap">
-                <!-- ĐỔI TÊN FILE ẢNH Ở ĐÂY NẾU BẠN LƯU KHÁC TÊN he_thong.jpg -->
                 <img src="he_thong.jpg" alt="Hệ thống trạm bơm S7-1200">
 
-                <!-- Ô Độ sai số nổi góc trên bên trái -->
                 <div class="error-box error-box-floating">
                     <div class="error-num" id="txt_sai_so">0.000</div>
                     <div class="error-title">ĐỘ SAI SỐ</div>
                 </div>
 
-                <!-- Bên trái: Tần số thực biến tần -->
                 <div id="svg_ts_thuc" class="live-overlay overlay-hz">0.0 Hz</div>
-
-                <!-- Bên phải: Áp suất thực tế -->
                 <div id="svg_ap_thuc" class="live-overlay overlay-bar">0.00 Bar</div>
             </div>
         </div>
@@ -568,7 +569,7 @@
 
 <script>
     // =========================================================================
-    // 1. LOGO SVG DỰ PHÒNG (KHI KHÔNG TÌM THẤY FILE ẢNH)
+    // 1. LOGO SVG DỰ PHÒNG
     // =========================================================================
     const uteSvgFallback = "data:image/svg+xml;utf8," + encodeURIComponent(`
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
@@ -588,50 +589,49 @@
     document.getElementById("img_fee").onerror = function() { this.src = feeSvgFallback; };
 
     // =========================================================================
-    // 2. VẼ ĐỒNG HỒ KIM (GAUGE) GIỐNG WINCC
+    // 2. VẼ ĐỒNG HỒ KIM (GAUGE)
     // =========================================================================
-   function buildGauge(elId, maxVal, unitStr, subStr) {
-    const el = document.getElementById(elId);
-    const isPressure = (maxVal === 2);
-    const steps = isPressure ? 10 : 5; // Đồng hồ áp suất chia 10 khoảng (0.2 Bar/vạch), tần số giữ 5 khoảng (10 Hz/vạch)
-    let ticks = "";
+    function buildGauge(elId, maxVal, unitStr, subStr) {
+        const el = document.getElementById(elId);
+        const isPressure = (maxVal === 2);
+        const steps = isPressure ? 10 : 5;
+        let ticks = "";
 
-    for (let i = 0; i <= steps; i++) {
-        const v = (maxVal / steps) * i;
-        const deg = -215 + (i / steps) * 250;
-        const rad = (deg * Math.PI) / 180;
+        for (let i = 0; i <= steps; i++) {
+            const v = (maxVal / steps) * i;
+            const deg = -215 + (i / steps) * 250;
+            const rad = (deg * Math.PI) / 180;
 
-        // Vạch chính (0, 1, 2 Bar) dài và đậm hơn vạch phụ (0.2, 0.4, 0.6...)
-        const isMajor = !isPressure || (i % 5 === 0);
-        const rInner = isMajor ? 36 : 38.5;
-        const rOuter = 43.5;
-        const strokeW = isMajor ? 2 : 1.3;
+            const isMajor = !isPressure || (i % 5 === 0);
+            const rInner = isMajor ? 36 : 38.5;
+            const rOuter = 43.5;
+            const strokeW = isMajor ? 2 : 1.3;
 
-        const x1 = 60 + rInner * Math.cos(rad), y1 = 60 + rInner * Math.sin(rad);
-        const x2 = 60 + rOuter * Math.cos(rad), y2 = 60 + rOuter * Math.sin(rad);
-        const tx = 60 + 51 * Math.cos(rad), ty = 60 + 51 * Math.sin(rad);
+            const x1 = 60 + rInner * Math.cos(rad), y1 = 60 + rInner * Math.sin(rad);
+            const x2 = 60 + rOuter * Math.cos(rad), y2 = 60 + rOuter * Math.sin(rad);
+            const tx = 60 + 51 * Math.cos(rad), ty = 60 + 51 * Math.sin(rad);
 
-        const label = isPressure ? Number(v.toFixed(1)) : Math.round(v);
-        const fontSize = isPressure ? (isMajor ? 8 : 6.2) : 8.2;
+            const label = isPressure ? Number(v.toFixed(1)) : Math.round(v);
+            const fontSize = isPressure ? (isMajor ? 8 : 6.2) : 8.2;
 
-        ticks += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#111" stroke-width="${strokeW}"/>`;
-        ticks += `<text x="${tx}" y="${ty}" font-size="${fontSize}" font-weight="bold" text-anchor="middle" dominant-baseline="central" fill="#111">${label}</text>`;
+            ticks += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#111" stroke-width="${strokeW}"/>`;
+            ticks += `<text x="${tx}" y="${ty}" font-size="${fontSize}" font-weight="bold" text-anchor="middle" dominant-baseline="central" fill="#111">${label}</text>`;
+        }
+
+        el.innerHTML = `
+            <svg viewBox="0 0 120 120" width="100%" height="100%">
+                <circle cx="60" cy="60" r="57" fill="#7f8c8d" stroke="#222" stroke-width="2.5"/>
+                <circle cx="60" cy="60" r="45" fill="#fff" stroke="#444" stroke-width="1.5"/>
+                <path d="M 34.6 77.8 A 31 31 0 1 1 85.4 77.8" fill="none" stroke="#2ecc71" stroke-width="7"/>
+                ${ticks}
+                <text x="60" y="90" font-size="8" font-weight="bold" text-anchor="middle" fill="#222">${unitStr}</text>
+                <text x="60" y="99" font-size="7" font-weight="bold" text-anchor="middle" fill="#555">${subStr}</text>
+                <g id="${elId}_needle" transform="rotate(-125, 60, 60)">
+                    <polygon points="56.5,60 63.5,60 60,18" fill="#2c3e50"/>
+                </g>
+                <circle cx="60" cy="60" r="7.5" fill="#555" stroke="#222" stroke-width="1.5"/>
+            </svg>`;
     }
-
-    el.innerHTML = `
-        <svg viewBox="0 0 120 120" width="100%" height="100%">
-            <circle cx="60" cy="60" r="57" fill="#7f8c8d" stroke="#222" stroke-width="2.5"/>
-            <circle cx="60" cy="60" r="45" fill="#fff" stroke="#444" stroke-width="1.5"/>
-            <path d="M 34.6 77.8 A 31 31 0 1 1 85.4 77.8" fill="none" stroke="#2ecc71" stroke-width="7"/>
-            ${ticks}
-            <text x="60" y="90" font-size="8" font-weight="bold" text-anchor="middle" fill="#222">${unitStr}</text>
-            <text x="60" y="99" font-size="7" font-weight="bold" text-anchor="middle" fill="#555">${subStr}</text>
-            <g id="${elId}_needle" transform="rotate(-125, 60, 60)">
-                <polygon points="56.5,60 63.5,60 60,18" fill="#2c3e50"/>
-            </g>
-            <circle cx="60" cy="60" r="7.5" fill="#555" stroke="#222" stroke-width="1.5"/>
-        </svg>`;
-}
 
     function setGaugeValue(elId, val, maxVal) {
         const clamped = Math.max(0, Math.min(maxVal, val));
@@ -641,10 +641,10 @@
     }
 
     buildGauge("gauge_ap_dat", 2, "Bar", "Áp suất");
-    buildGauge("gauge_ts_dat", 50, "Hz", "TầnSố");
+    buildGauge("gauge_ts_dat", 50, "Hz", "Tần số");
 
     // =========================================================================
-    // 3. KHỞI TẠO ĐỒ THỊ TREND (WEB_AP_SUAT_DAT, THUC_TE, UOC_LUONG)
+    // 3. KHỞI TẠO ĐỒ THỊ TREND
     // =========================================================================
     const ctx = document.getElementById('scadaTrendChart').getContext('2d');
     const maxPts = 30;
@@ -699,34 +699,12 @@
     // 4. CẬP NHẬT GIAO DIỆN KHI NHẬN DỮ LIỆU TỪ ESP32 ĐẨY LÊN
     // =========================================================================
     function updateFromPLC(data) {
-        const boolWord = parseInt(data.bool) || 0;
         const ap_dat   = parseFloat(data.ap_dat) || 0.0;
         const ts_dat   = parseFloat(data.ts_dat) || 0.0;
         const ap_thuc  = parseFloat(data.ap_thuc) || 0.0;
         const ts_thuc  = parseFloat(data.ts_thuc) || 0.0;
         const ap_uoc   = parseFloat(data.ap_uoc) || 0.0;
         const sai_so   = parseFloat(data.sai) || 0.0;
-
-        // Tách bit từ Holding_Registers[0]
-        const i_reset = (boolWord >> 4) & 1;
-        const i_man1  = (boolWord >> 5) & 1;
-        const i_man2  = (boolWord >> 6) & 1;
-        const i_man3  = (boolWord >> 7) & 1;
-        const q_start = (boolWord >> 8) & 1;
-        const q_stop  = (boolWord >> 9) & 1;
-        const q_auto  = (boolWord >> 10) & 1;
-        const q_man   = (boolWord >> 11) & 1;
-
-        // Sáng đèn nút nhấn Q khi giá trị = 1
-        document.getElementById("btn_start").classList.toggle("q-start-on", q_start === 1);
-        document.getElementById("btn_stop").classList.toggle("q-stop-on", q_stop === 1);
-        document.getElementById("btn_auto").classList.toggle("q-auto-on", q_auto === 1);
-        document.getElementById("btn_manual").classList.toggle("q-manual-on", q_man === 1);
-        document.getElementById("btn_reset").classList.toggle("i-reset-on", i_reset === 1);
-
-        document.getElementById("btn_hz_30").classList.toggle("hz-on", i_man1 === 1 || Math.round(ts_dat) === 30);
-        document.getElementById("btn_hz_40").classList.toggle("hz-on", i_man2 === 1 || Math.round(ts_dat) === 40);
-        document.getElementById("btn_hz_50").classList.toggle("hz-on", i_man3 === 1 || Math.round(ts_dat) === 50);
 
         // Cập nhật ô nhập (tránh ghi đè khi đang gõ)
         const inAp = document.getElementById("input_ap_dat");
@@ -738,7 +716,7 @@
             inTs.value = ts_dat.toFixed(1);
         }
 
-        // Cập nhật đồng hồ kim & 2 ô số đè trên ảnh hệ thống 3D
+        // Cập nhật đồng hồ kim & 2 ô số trên ảnh hệ thống 3D theo GIÁ TRỊ THỰC TẾ
         setGaugeValue("gauge_ap_dat", ap_thuc, 2);
         setGaugeValue("gauge_ts_dat", ts_thuc, 50);
         document.getElementById("txt_sai_so").innerText  = sai_so.toFixed(3);
@@ -768,9 +746,9 @@
     }
 
     // =========================================================================
-    // 5. KẾT NỐI MQTT & HÀM GỬI LỆNH XUỐNG ESP32 -> STM32 -> PLC
+    // 5. KẾT NỐI MQTT (WSS PORT 8884 + SSL CHO GITHUB PAGES & LOCAL)
     // =========================================================================
-    const client = new Paho.MQTT.Client("broker.hivemq.com", 8884, "WinCC_Web_" + Math.floor(Math.random() * 10000));
+    const client = new Paho.MQTT.Client("broker.hivemq.com", 8884, "/mqtt", "WinCC_Web_" + Math.floor(Math.random() * 10000));
 
     client.onConnectionLost = function() {
         const st = document.getElementById("mqtt_state");
@@ -809,36 +787,64 @@
         }
     });
 
-    // Gửi lệnh khi nhấn nút WEB_I_*
-    function sendButtonCmd(cmdChar) {
-        if (!client.isConnected()) { alert("Chưa kết nối MQTT Broker!"); return; }
-        const msg = new Paho.MQTT.Message(cmdChar);
+    function publishCmd(payload) {
+        if (!client.isConnected()) {
+            alert("Chưa kết nối MQTT Broker!");
+            return false;
+        }
+        const msg = new Paho.MQTT.Message(payload);
         msg.destinationName = "congphong/plc/led";
         client.send(msg);
+        return true;
     }
 
-    // Gửi giá trị nhập WEB_AP_SUAT_DAT (P:...) hoặc WEB_TAN_SO_DAT (F:...) khi nhấn Enter
+    // =========================================================================
+    // 6. XỬ LÝ NÚT NHẤN NHẢ: NHẤN -> SÁNG & GỬI MÃ | THẢ -> TẮT & GỬI 'Z' (VỀ 0)
+    // =========================================================================
+    let activeButtonEl = null;
+
+    function pressBtn(btnEl, cmdChar, freqVal) {
+        if (activeButtonEl) return; // Tránh nhấn đè cùng lúc 2 nút
+        if (!publishCmd(cmdChar)) return;
+
+        activeButtonEl = btnEl;
+        btnEl.classList.add("pressing");
+
+        if (typeof freqVal === "number") {
+            document.getElementById("input_ts_dat").value = freqVal.toFixed(1);
+        }
+    }
+
+    function releaseBtn() {
+        if (!activeButtonEl) return;
+        activeButtonEl.classList.remove("pressing");
+        activeButtonEl = null;
+
+        // Gửi ký tự 'Z' (1 byte) để STM32 ghi 0 về Thanh ghi 15 của PLC
+        if (client.isConnected()) {
+            const msg = new Paho.MQTT.Message("Z");
+            msg.destinationName = "congphong/plc/led";
+            client.send(msg);
+        }
+    }
+
+    // Bắt sự kiện thả ở toàn bộ cửa sổ -> kéo chuột ra ngoài nút vẫn tự nhả về 0
+    window.addEventListener("pointerup", releaseBtn);
+    window.addEventListener("pointercancel", releaseBtn);
+    window.addEventListener("blur", releaseBtn);
+
+    // Gửi Setpoint áp suất (P:1.25) hoặc tần số (F:30.0) - luôn đúng 6 ký tự
     function sendSetpoint(type) {
-    if (!client.isConnected()) { alert("Chưa kết nối MQTT Broker!"); return; }
-    let payload = "";
-    if (type === 'P') {
-        const val = parseFloat(document.getElementById("input_ap_dat").value) || 0;
-        payload = "P:" + val.toFixed(2);
-    } else if (type === 'F') {
-        const val = parseFloat(document.getElementById("input_ts_dat").value) || 0;
-        payload = "F:" + val.toFixed(2);
-    }
-    const msg = new Paho.MQTT.Message(payload);
-    msg.destinationName = "congphong/plc/led";
-    client.send(msg);
-}
-
-    // Nhấn nút chọn nhanh 30Hz, 40Hz, 50Hz
-    function setQuickFreq(cmdChar, freqVal) {
-        document.getElementById("input_ts_dat").value = freqVal.toFixed(1);
-        sendButtonCmd(cmdChar);
+        let payload = "";
+        if (type === 'P') {
+            const val = Math.max(0, Math.min(2, parseFloat(document.getElementById("input_ap_dat").value) || 0));
+            payload = "P:" + val.toFixed(2);
+        } else if (type === 'F') {
+            const val = Math.max(0, Math.min(50, parseFloat(document.getElementById("input_ts_dat").value) || 0));
+            payload = "F:" + val.toFixed(1).padStart(4, '0');
+        }
+        publishCmd(payload);
     }
 </script>
 </body>
-
 </html>
